@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
@@ -12,7 +13,7 @@ var app = express();
 app.use(bodyParser.json());
 
 // To Dos Post Route
-
+// -----------------
 app.post('/todos', (req,res) => {
 
     var todo = new Todo({ text: req.body.text });
@@ -26,7 +27,7 @@ app.post('/todos', (req,res) => {
 });
 
 // To Dos GET route (return all todos)
-
+// ------------------------------------
 app.get('/todos', (req, res) => {
     
     Todo.find().then((todos) => {
@@ -36,6 +37,24 @@ app.get('/todos', (req, res) => {
     })
 });
 
+// To Dos GET a specific To Do. 
+// ----------------------------
+app.get('/todos/:id', (req,res) => {
+    var id = req.params.id;
+
+    if (ObjectID.isValid(id)) {
+        
+        Todo.findById(id).then((todo) => {
+            (todo) ? res.send({todo}) : res.status(404).send();
+        }, (e) => {
+            res.status(400).send();
+        });
+
+    } else {
+        console.log('Invalid ObjectID')
+        res.status(404).send();
+    }
+});
 
 
 app.listen(3000, () => {
