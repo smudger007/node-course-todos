@@ -1,12 +1,17 @@
 const expect = require('expect');
 const request = require('supertest');
+const {ObjectID} = require('mongodb');
+
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
+
 // Create some dummy ToDos to load up the DB with.
 
-const dummyTodos = [{text: 'To Do 1'}, {text: 'To Do 2'}, {text: 'To Do 3'}];
+const dummyTodos = [{_id: new ObjectID(), text: 'To Do 1'}, 
+                    {_id: new ObjectID(), text: 'To Do 2'}, 
+                    {_id: new ObjectID(), text: 'To Do 3'}];
 
 // Prior to each test we want to Remove all existing documents and then add some Dummy entries. 
 
@@ -77,3 +82,37 @@ describe('GET /todos', () => {
 });
 
 
+describe('GET /todos:id', () => {
+
+    it('should return todo doc', (done) => {
+
+        request(app)
+            .get(`/todos/${dummyTodos[0]._id.toHexString()}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(dummyTodos[0].text)
+            })
+            .end(done)
+    });
+
+    it('should return a 404 if todo not found', (done) => {
+
+        var nonID = new ObjectID().toHexString();
+        
+        request(app)
+            .get(`/todos/${nonID}`)
+            .expect(404)
+            .end(done)
+    });
+
+    it('should return a 404 if invalid ObjectID', (done) => {
+
+        request(app)
+            .get('/todos/1234')
+            .expect(404)
+            .end(done);
+
+    });
+
+
+});
