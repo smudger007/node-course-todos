@@ -77,7 +77,6 @@ app.delete('/todos/:id', (req,res) => {
 
     } else {
         res.status(404).send();
-        
     }
 
 });
