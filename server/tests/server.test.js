@@ -11,7 +11,7 @@ const {Todo} = require('./../models/todo');
 
 const dummyTodos = [{_id: new ObjectID(), text: 'To Do 1'}, 
                     {_id: new ObjectID(), text: 'To Do 2'}, 
-                    {_id: new ObjectID(), text: 'To Do 3'}];
+                    {_id: new ObjectID(), text: 'To Do 3', completed: true, completedAt: 1234 }];
 
 // Prior to each test we want to Remove all existing documents and then add some Dummy entries. 
 
@@ -159,5 +159,43 @@ describe('DELETE /todos/:id', () => {
             .expect(404)
             .end(done);
     });
+});
 
+describe('PATCH /todos/:id', () => {
+
+    it('should update To Do', (done) => {
+
+        var hexID = dummyTodos[0]._id.toHexString();
+        var body = { text: 'To Do 1 - BUT I HAVE BEEN UPDATED', completed: true };
+
+        request(app)
+            .patch(`/todos/${hexID}`)
+            .send(body)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.completed).toBeTruthy();
+                expect(res.body.todo.text).toBe(body.text);
+                expect(res.body.todo.completed).toBe(true)
+                expect(res.body.todo.completedAt).toBeGreaterThanOrEqual(0);
+            })
+            .end(done);
+
+    });
+
+    it('should clear completedAt when completed is set to False', (done) => {
+
+        var hexID = dummyTodos[2]._id.toHexString();
+        var body = { text: 'To Do 3 - BUT I HAVE BEEN UPDATED', completed: false };
+
+        request(app)
+            .patch(`/todos/${hexID}`)
+            .send(body)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.text).toBe(body.text);
+                expect(res.body.todo.completedAt).toBeNull();
+            })
+            .end(done);
+    });
 });
