@@ -53,10 +53,35 @@ app.get('/todos/:id', (req,res) => {
         });
 
     } else {
-        console.log('Invalid ObjectID')
+        //console.log('Invalid ObjectID')
         res.status(404).send();
     }
 });
+
+// Delete a specific ToDo (by ID)
+// -------------------------------
+// Return 404 if invalid ID
+// Return 404 if valid ID but not in DB
+// Return 200 and ToDo removed if successfully removed. 
+
+app.delete('/todos/:id', (req,res) => {
+
+    var id = req.params.id;
+
+    if (ObjectID.isValid(id)) {
+        Todo.findByIdAndRemove(id).then((todo) => {
+            todo ? res.send({todo}) : res.status(404).send();
+        }).catch((e) => {
+            res.status(400).send();
+        });
+
+    } else {
+        res.status(404).send();
+        
+    }
+
+});
+
 
 
 app.listen(port, () => {
