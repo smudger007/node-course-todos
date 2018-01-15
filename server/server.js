@@ -37,6 +37,7 @@ app.post('/todos', (req,res) => {
 app.get('/todos', (req, res) => {
     
     Todo.find().then((todos) => {
+        console.log('In GET /todos');
         res.send({todos});
     }, (e) => {
         res.status(400).send(e);
@@ -118,21 +119,24 @@ app.patch('/todos/:id', (req,res) => {
 app.post('/users', (req,res) => {
 
     var body = _.pick(req.body, ['email'], ['password']);
-
     var user = new User(body);
+
+    // console.log(`email = ${body.email} - password = ${body.password} `);
 
     user.save().then(() => {
         return user.generateAuthToken();
     }).then((token) => {
+        console.log('Im here...');
         res.header('x-auth', token).send(user);
     }).catch((e) => {
+        console.log('Error', e);
         res.status(400).send(e);
     });
 
 });
 
 
-// GET /users/me 
+//GET /users/me 
 app.get('/users/me', authenticate,  (req,res) => {
     console.log('XXXXX');
     res.send(req.user);
