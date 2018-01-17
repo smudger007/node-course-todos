@@ -4,6 +4,7 @@ const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const bcrypt = require('bcryptjs');
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
@@ -142,6 +143,46 @@ app.get('/users/me', authenticate,  (req,res) => {
     res.send(req.user);
 });
 
+// POST /users/login - V1   
+// Accept email and password. Check this matches an entry in the DB (password hashed of course.)
+
+// app.post('/users/login', (req, res) => {
+
+//     var body = _.pick(req.body, ['email'], ['password']);
+    
+//     // Now search for the user in the DB
+
+//     User.findOne({email: body.email}).then((user) => {
+
+//         if (!user) {
+//             res.status(401).send();
+//         } else {
+//             bcrypt.compare(body.password, user.password, (err, result) => {
+//                 result ? res.send(body) : res.status(401).send(); 
+//             });
+//         }
+//     }).catch((e) => {
+//         console.log('General Error during Authentication', e);
+//         res.status(400).send(e);
+//     });
+// });
+
+
+// POST /users/login - V2   
+// Accept email and password. Check this matches an entry in the DB (password hashed of course.
+app.post('/users/login', (req, res) => {
+
+    var body = _.pick(req.body, ['email'], ['password']);
+
+    User.findByCredentials(body.email, body.password).then((user) => {
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        })
+    }).catch((e) => {
+        res.status(400).send();
+    });
+
+});
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);

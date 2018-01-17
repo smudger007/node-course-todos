@@ -31,7 +31,8 @@ var UserSchema = new mongoose.Schema({
       required: true
     }
   }]
-});
+}, 
+{ usePushEach: true });
 
 UserSchema.methods.toJSON = function () {
   var user = this;
@@ -45,7 +46,11 @@ UserSchema.methods.generateAuthToken = function () {
   var access = 'auth';
   var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
-  user.tokens.concat([{access, token}]);
+  console.log('In generateAuthToken:', token);
+
+  user.tokens.push({access, token});
+
+  console.log('tokens', user.tokens);
 
   return user.save().then(() => {
     return token;
@@ -67,6 +72,27 @@ UserSchema.statics.findByToken = function (token) {
     'tokens.token': token,
     'tokens.access': 'auth'
   });
+};
+
+UserSchema.statics.findByCredentials = function (email, password) {
+
+  var User = this;
+
+  console.log('findbycredentials: email = ', email);
+  console.log('findbycredentials: pw = ', password);
+  
+  return User.findOne({email}).then((user) => {
+    if (!user) {
+      return Promise.reject();
+    }
+    
+    return new Promise((resolve,reject) => {
+      bcrypt.compare(password, user.password, (err, res) => {
+        res ? resolve(user) : reject();
+      });
+    });
+  });
+
 };
 
 UserSchema.pre('save', function (next) {
