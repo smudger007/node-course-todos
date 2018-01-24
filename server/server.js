@@ -174,8 +174,11 @@ app.post('/users/login', (req, res) => {
 
     var body = _.pick(req.body, ['email'], ['password']);
 
+    // console.log('Before User Send', body);
+
     User.findByCredentials(body.email, body.password).then((user) => {
         return user.generateAuthToken().then((token) => {
+            // console.log('Just before sending back', token);
             res.header('x-auth', token).send(user);
         })
     }).catch((e) => {

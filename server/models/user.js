@@ -46,11 +46,11 @@ UserSchema.methods.generateAuthToken = function () {
   var access = 'auth';
   var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
-  console.log('In generateAuthToken:', token);
+  // console.log('In generateAuthToken:', token);
 
   user.tokens.push({access, token});
 
-  console.log('tokens', user.tokens);
+  // console.log('tokens', user.tokens);
 
   return user.save().then(() => {
     return token;
@@ -78,11 +78,12 @@ UserSchema.statics.findByCredentials = function (email, password) {
 
   var User = this;
 
-  console.log('findbycredentials: email = ', email);
-  console.log('findbycredentials: pw = ', password);
+  // console.log('findbycredentials: email = ', email);
+  // console.log('findbycredentials: pw = ', password);
   
   return User.findOne({email}).then((user) => {
     if (!user) {
+      console.log('rejecting the promise', user);
       return Promise.reject();
     }
     
