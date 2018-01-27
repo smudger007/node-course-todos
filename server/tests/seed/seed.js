@@ -20,7 +20,11 @@ const dummyUsers = [{
 }, {
     _id: userTwoID, 
     email: 'billy009@gmail.com', 
-    password: 'password345!'
+    password: 'password345!', 
+    tokens: [{
+        access: 'auth',
+        token: jwt.sign({_id: userTwoID, access: 'auth'}, 'abc123').toString()
+    }]
 }];
 
 const populateUsers = (done) => {
@@ -33,9 +37,9 @@ const populateUsers = (done) => {
 
 // Create some dummy ToDos to load up the DB with.
 
-const dummyTodos = [{_id: new ObjectID(), text: 'To Do 1'}, 
-                    {_id: new ObjectID(), text: 'To Do 2'}, 
-                    {_id: new ObjectID(), text: 'To Do 3', completed: true, completedAt: 1234 }];
+const dummyTodos = [{_id: new ObjectID(), text: 'To Do 1', _creator: userOneID}, 
+                    {_id: new ObjectID(), text: 'To Do 2', _creator: userTwoID}, 
+                    {_id: new ObjectID(), text: 'To Do 3', completed: true, _creator: userOneID, completedAt: 1234 }];
 
 
 const populateTodos = (done) => {
