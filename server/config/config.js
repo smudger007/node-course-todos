@@ -2,10 +2,13 @@ var env = process.env.NODE_ENV || 'development';
 
 console.log('Env is ', env);
 
-if (env === 'development') {
-    process.env.PORT = 3000;
-    process.env.DB_URL = 'mongodb://localhost:27017/TodoApp';
-} else if (env === 'test') {
-    process.env.PORT = 3000;
-    process.env.DB_URL = 'mongodb://localhost:27017/TodoAppTest';
+// Read in the config from a file, which will not be included in the git Repo, therefore no one can see our private details on DEV/TEST. 
+// Note: On PROD these environment variables will be stored in the hosting environment, eg. Heroku.
+
+if (env === 'development' || env === 'test') {
+    var config = require('./config.json');
+    var envConfig = config[env]
+    Object.keys(envConfig).forEach((key) => {
+        process.env[key] = envConfig[key];
+    });
 }
