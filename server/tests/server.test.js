@@ -208,7 +208,6 @@ describe('PATCH /todos/:id', () => {
             .expect((res) => {
                 expect(res.body.todo.completed).toBeTruthy();
                 expect(res.body.todo.text).toBe(body.text);
-                expect(res.body.todo.completed).toBe(true)
                 expect(res.body.todo.completedAt).toBeGreaterThanOrEqual(0);
             })
             .end(done);
@@ -350,8 +349,12 @@ describe('POST /users/login', () => {
                     return done(err);
                 }              
                 User.findById(dummyUsers[1]._id).then((user) => {
-                    expect(user.tokens[1].access).toBe('auth');
-                    expect(user.tokens[1].token).toBe(res.headers['x-auth']);
+
+                    expect(user.toObject().tokens[1]).toMatchObject({                        
+                        access: "auth",
+                        token: res.headers['x-auth']
+                    });
+                    
                     done();
                 }).catch((e) => done(e));
             });
